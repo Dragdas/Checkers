@@ -41,62 +41,62 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          </rowConstraints>
          <children>
-            <ImageView GridPane.rowIndex="7">
+            <ImageView fx:id="blackPawn9" onMouseClicked="#onPawnClick" GridPane.rowIndex="7">
                <image>
                   <Image url="@../../../../Assets/BlackPawn.png" />
                </image>
             </ImageView>
-            <ImageView GridPane.columnIndex="1" GridPane.rowIndex="6">
+            <ImageView fx:id="blackPawn5" onMouseClicked="#onPawnClick" GridPane.columnIndex="1" GridPane.rowIndex="6">
                <image>
                   <Image url="@../../../../Assets/BlackPawn.png" />
                </image>
             </ImageView>
-            <ImageView GridPane.columnIndex="2" GridPane.rowIndex="7">
+            <ImageView fx:id="blackPawn10" onMouseClicked="#onPawnClick" GridPane.columnIndex="2" GridPane.rowIndex="7">
                <image>
                   <Image url="@../../../../Assets/BlackPawn.png" />
                </image>
             </ImageView>
-            <ImageView GridPane.columnIndex="3" GridPane.rowIndex="6">
+            <ImageView fx:id="blackPawn6" onMouseClicked="#onPawnClick" GridPane.columnIndex="3" GridPane.rowIndex="6">
                <image>
                   <Image url="@../../../../Assets/BlackPawn.png" />
                </image>
             </ImageView>
-            <ImageView GridPane.columnIndex="7" GridPane.rowIndex="6">
+            <ImageView fx:id="blackPawn8" onMouseClicked="#onPawnClick" GridPane.columnIndex="7" GridPane.rowIndex="6">
                <image>
                   <Image url="@../../../../Assets/BlackPawn.png" />
                </image>
             </ImageView>
-            <ImageView GridPane.columnIndex="6" GridPane.rowIndex="7">
+            <ImageView fx:id="blackPawn12" onMouseClicked="#onPawnClick" GridPane.columnIndex="6" GridPane.rowIndex="7">
                <image>
                   <Image url="@../../../../Assets/BlackPawn.png" />
                </image>
             </ImageView>
-            <ImageView GridPane.columnIndex="5" GridPane.rowIndex="6">
+            <ImageView fx:id="blackPawn7" onMouseClicked="#onPawnClick" GridPane.columnIndex="5" GridPane.rowIndex="6">
                <image>
                   <Image url="@../../../../Assets/BlackPawn.png" />
                </image>
             </ImageView>
-            <ImageView GridPane.columnIndex="4" GridPane.rowIndex="7">
+            <ImageView fx:id="blackPawn11" onMouseClicked="#onPawnClick" GridPane.columnIndex="4" GridPane.rowIndex="7">
                <image>
                   <Image url="@../../../../Assets/BlackPawn.png" />
                </image>
             </ImageView>
-            <ImageView GridPane.columnIndex="6" GridPane.rowIndex="5">
+            <ImageView fx:id="blackPawn4" onMouseClicked="#onPawnClick" GridPane.columnIndex="6" GridPane.rowIndex="5">
                <image>
                   <Image url="@../../../../Assets/BlackPawn.png" />
                </image>
             </ImageView>
-            <ImageView GridPane.columnIndex="4" GridPane.rowIndex="5">
+            <ImageView fx:id="blackPawn3" onMouseClicked="#onPawnClick" GridPane.columnIndex="4" GridPane.rowIndex="5">
                <image>
                   <Image url="@../../../../Assets/BlackPawn.png" />
                </image>
             </ImageView>
-            <ImageView GridPane.columnIndex="2" GridPane.rowIndex="5">
+            <ImageView fx:id="blackPawn1" onMouseClicked="#onPawnClick" GridPane.rowIndex="5">
                <image>
                   <Image url="@../../../../Assets/BlackPawn.png" />
                </image>
             </ImageView>
-            <ImageView GridPane.rowIndex="5">
+            <ImageView fx:id="blackPawn2" onMouseClicked="#onPawnClick" GridPane.columnIndex="2" GridPane.rowIndex="5">
                <image>
                   <Image url="@../../../../Assets/BlackPawn.png" />
                </image>
@@ -121,42 +121,42 @@
                   <Image url="@../../../../Assets/RedPawn.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="redPawn11" onMouseClicked="#onPawnClick" GridPane.columnIndex="7" GridPane.rowIndex="2">
+            <ImageView fx:id="redPawn11" onMouseClicked="#onPawnClick" GridPane.columnIndex="5" GridPane.rowIndex="2">
                <image>
                   <Image url="@../../../../Assets/RedPawn.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="redPawn10" onMouseClicked="#onPawnClick" GridPane.columnIndex="5" GridPane.rowIndex="2">
+            <ImageView fx:id="redPawn10" onMouseClicked="#onPawnClick" GridPane.columnIndex="3" GridPane.rowIndex="2">
                <image>
                   <Image url="@../../../../Assets/RedPawn.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="redPawn9" onMouseClicked="#onPawnClick" GridPane.columnIndex="3" GridPane.rowIndex="2">
+            <ImageView fx:id="redPawn9" onMouseClicked="#onPawnClick" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <image>
                   <Image url="@../../../../Assets/RedPawn.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="redPawn8" onMouseClicked="#onPawnClick" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <ImageView fx:id="redPawn8" onMouseClicked="#onPawnClick" GridPane.columnIndex="6" GridPane.rowIndex="1">
                <image>
                   <Image url="@../../../../Assets/RedPawn.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="redPawn7" onMouseClicked="#onPawnClick" GridPane.columnIndex="6" GridPane.rowIndex="1">
+            <ImageView fx:id="redPawn7" onMouseClicked="#onPawnClick" GridPane.columnIndex="4" GridPane.rowIndex="1">
                <image>
                   <Image url="@../../../../Assets/RedPawn.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="redPawn6" onMouseClicked="#onPawnClick" GridPane.columnIndex="4" GridPane.rowIndex="1">
+            <ImageView fx:id="redPawn6" onMouseClicked="#onPawnClick" GridPane.columnIndex="2" GridPane.rowIndex="1">
                <image>
                   <Image url="@../../../../Assets/RedPawn.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="redPawn5" onMouseClicked="#onPawnClick" GridPane.columnIndex="2" GridPane.rowIndex="1">
+            <ImageView fx:id="redPawn5" onMouseClicked="#onPawnClick" GridPane.rowIndex="1">
                <image>
                   <Image url="@../../../../Assets/RedPawn.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="redPawn4" onMouseClicked="#onPawnClick" GridPane.rowIndex="1">
+            <ImageView fx:id="redPawn12" onMouseClicked="#onPawnClick" GridPane.columnIndex="7" GridPane.rowIndex="2">
                <image>
                   <Image url="@../../../../Assets/RedPawn.png" />
                </image>
