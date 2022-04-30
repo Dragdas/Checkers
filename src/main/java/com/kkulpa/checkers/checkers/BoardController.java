@@ -1,12 +1,10 @@
 package com.kkulpa.checkers.checkers;
 
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 
@@ -14,6 +12,16 @@ public class BoardController {
 
     @FXML
     private GridPane board;
+
+    @FXML
+    private ImageView selectedIcon;
+
+
+
+
+
+    private int selectedColumn = 0;
+    private int selectedRow = 0;
 
 
 
@@ -31,6 +39,21 @@ public class BoardController {
         System.out.println("clicked " + clickedNode.getId());
         System.out.println("Adress: " + targerColumnIndex + " " + targetRowIndex);
 
+        Image selectedPawnImage = new Image("file:src/main/resources/Assets/movesThatCanBeSelected.png");
+        ImageView imageView = new ImageView(selectedPawnImage);
+        imageView.setOpacity(0.5);
+
+        Image selectedPawnImage2 = new Image("file:src/main/resources/Assets/movesThatCanBeSelected.png");
+        ImageView imageView2 = new ImageView(selectedPawnImage2);
+        imageView2.setOpacity(0.5);
+
+        board.add(imageView,targerColumnIndex-1,targetRowIndex+1);
+        board.add(imageView2,targerColumnIndex+1,targetRowIndex+1);
+
+        imageView2.setOnMouseClicked(this::onFieldClick);
+
+        System.out.println(clickedNode.getLayoutX() );
+
 
 
 
@@ -40,6 +63,11 @@ public class BoardController {
 
 
     }
+
+    public void onFieldClick(MouseEvent event){
+        System.out.println("dziala");
+    }
+
 
 
 
