@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.kkulpa.checkers.checkers.Coordinates.isCoordinateValid;
+
 public class Figure {
 
     private FigureTypes figureType;
@@ -79,6 +81,7 @@ public class Figure {
         board.add(figureImageView, columnCoordinate, rowCoordinate);
 
         markPossibleMoves(findPossibleMoves());
+        markPossibleAttacks(findPossibleAttacks());
 
     }
 
@@ -90,6 +93,10 @@ public class Figure {
 
     public List<Node> getMarks(){
         return marks;
+    }
+
+    public String getId() {
+        return id;
     }
 
     @Override
@@ -105,7 +112,78 @@ public class Figure {
         return Objects.hash(id);
     }
 
-    //TODO update attack case
+
+
+    private List<PossibleAttack> findPossibleAttacks(){
+        List<PossibleAttack> result = new ArrayList<>();
+
+        //case redFigures
+        if(figureColor == FigureColor.RED){
+            PossibleAttack leftFrontAttack = findAttack("b",-1,+1);
+            if(leftFrontAttack != null)
+                result.add(leftFrontAttack);
+
+            PossibleAttack rightFrontAttack = findAttack("b",1,+1);
+            if(rightFrontAttack != null)
+                result.add(rightFrontAttack);
+
+            if(figureType == FigureTypes.KING){
+                PossibleAttack leftBackAttack = findAttack("b",-1,-1);
+                if(leftBackAttack != null)
+                    result.add(leftBackAttack);
+
+                PossibleAttack rightBackAttack = findAttack("b",1,-1);
+                if(rightBackAttack != null)
+                    result.add(rightBackAttack);
+            }
+        }
+
+        //case blackFigures
+        if(figureColor == FigureColor.BLACK){
+            PossibleAttack leftFrontAttack = findAttack("r",-1,-1);
+            if(leftFrontAttack != null)
+                result.add(leftFrontAttack);
+
+            PossibleAttack rightFrontAttack = findAttack("r",1,-1);
+            if(rightFrontAttack != null)
+                result.add(rightFrontAttack);
+
+            if(figureType == FigureTypes.KING){
+                PossibleAttack leftBackAttack = findAttack("r",-1,+1);
+                if(leftBackAttack != null)
+                    result.add(leftBackAttack);
+
+                PossibleAttack rightBackAttack = findAttack("r",1,+1);
+                if(rightBackAttack != null)
+                    result.add(rightBackAttack);
+            }
+        }
+
+        return result;
+    }
+
+    private PossibleAttack findAttack(String enemyColourLetter, int columnAxis, int rowAxis) {
+        if(        isCellOccupiedByEnemy(columnCoordinate + columnAxis , rowCoordinate + rowAxis)
+                && isCoordinateValid(columnCoordinate + (columnAxis*2), rowCoordinate + (rowAxis*2))
+                && isCellEmpty(columnCoordinate + (columnAxis*2), rowCoordinate + (rowAxis*2))
+        ){
+
+                List<Node> enemyNode = getNodesByRowColumnIndex(columnCoordinate + columnAxis, rowCoordinate + rowAxis,board)
+                        .stream().filter(node -> node.getId().startsWith(enemyColourLetter))
+                        .toList();
+
+                if(enemyNode.size() > 1)
+                    System.out.println("To much enemy in cell " + (columnCoordinate + columnAxis) + " "+ (rowCoordinate + rowAxis) );
+
+                Figure enemyFigure = boardController.getFigureFromMap( enemyNode.get(0).getId() );
+
+                PossibleAttack attack = new PossibleAttack(this, enemyFigure, new Coordinates(columnCoordinate + (columnAxis*2), rowCoordinate + (rowAxis*2)));
+
+                return attack;
+            }
+            return null;
+    }
+
     private List<Coordinates> findPossibleMoves(){
         List<Coordinates> result = new ArrayList<>();
 
@@ -145,6 +223,19 @@ public class Figure {
                 .collect(Collectors.toList());
     }
 
+    private void markPossibleAttacks(List<PossibleAttack> attacks){
+
+        attacks.stream().map(PossibleAttack::getAfterAttackCoordinates)
+                .forEach(coordinate -> {
+                    Image possibleAttackImage = new Image("file:src/main/resources/Assets/attackMove.png");
+                    ImageView imageView = new ImageView(possibleAttackImage);
+                    imageView.setOpacity(0.5);
+                    imageView.setOnMouseClicked(boardController::onMarkClicked);
+                    board.add(imageView,coordinate.getColumnIndex(),coordinate.getRowIndex());
+                    marks.add(imageView);
+                });
+            }
+
     private void markPossibleMoves(List<Coordinates>coordinates ){
 
         coordinates.forEach(coordinate -> {
@@ -157,14 +248,33 @@ public class Figure {
         marks.add(imageView);
         });
 
-
-
     }
 
 
     private boolean isCellEmpty(int columnIndex, int rowIndex){
         List<Node> nodesByRowColumnIndex = getNodesByRowColumnIndex(columnIndex, rowIndex, board);
         return nodesByRowColumnIndex.size() == 0;
+    }
+
+    private boolean isCellOccupiedByEnemy(int columnIndex, int rowIndex){
+        List<Node> nodesByRowColumnIndex = getNodesByRowColumnIndex(columnIndex, rowIndex, board);
+        if(nodesByRowColumnIndex.size()==0)
+            return false;
+
+        List<Node> collect = nodesByRowColumnIndex.stream().filter(node -> {
+                    if( node.getId() == null)
+                        return false;
+                    if (figureColor == FigureColor.RED) {
+                        return node.getId().startsWith("b");
+                    }
+                    if ((figureColor == FigureColor.BLACK)) {
+                        return node.getId().startsWith("r");
+                    }
+                    return false;
+                }
+        ).toList();
+
+        return collect.size() > 0;
     }
 
     private List<Node> getNodesByRowColumnIndex (final int column, final int row, GridPane gridPane) {

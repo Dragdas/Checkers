@@ -28,6 +28,11 @@ public class Coordinates {
                 '}';
     }
 
+    public static boolean isCoordinateValid(int columnIndex, int rowIndex){
+        return columnIndex >= 0 && columnIndex < 8 && rowIndex >= 0 && rowIndex < 8;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
