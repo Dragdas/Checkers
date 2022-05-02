@@ -6,9 +6,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.kkulpa.checkers.checkers.Coordinates.isCoordinateValid;
@@ -26,7 +25,8 @@ public class Figure {
     private boolean isSelected = false;
     private BoardController boardController;
 
-    List<Node> marks = new ArrayList<>();
+    List<Node> marksImageView = new ArrayList<>();
+    Map<String, Mark> markMap = new HashMap<>();
 
 
     public Figure(FigureTypes figureType, FigureColor figureColor, int columnCoordinate, int rowCoordinate, GridPane board, BoardController boardController, String id) {
@@ -76,7 +76,7 @@ public class Figure {
         Image selectedPawnImage = new Image("file:src/main/resources/Assets/move.png");
         ImageView selectedPawnImageView = new ImageView(selectedPawnImage);
         selectedPawnImageView.setOpacity(0.5);
-        marks.add(selectedPawnImageView);
+        marksImageView.add(selectedPawnImageView);
         board.add(selectedPawnImageView, columnCoordinate, rowCoordinate);
         board.add(figureImageView, columnCoordinate, rowCoordinate);
 
@@ -86,13 +86,13 @@ public class Figure {
     }
 
     public void deselect(){
-        board.getChildren().removeAll(marks);
+        board.getChildren().removeAll(marksImageView);
         isSelected = false;
 
     }
 
-    public List<Node> getMarks(){
-        return marks;
+    public List<Node> getMarksImageView(){
+        return marksImageView;
     }
 
     public String getId() {
@@ -112,7 +112,9 @@ public class Figure {
         return Objects.hash(id);
     }
 
-
+    public Mark getMarkByID(String id){
+        return markMap.get(id);
+    }
 
     private List<PossibleAttack> findPossibleAttacks(){
         List<PossibleAttack> result = new ArrayList<>();
@@ -225,27 +227,38 @@ public class Figure {
 
     private void markPossibleAttacks(List<PossibleAttack> attacks){
 
+        AtomicInteger i = new AtomicInteger(0);
+
         attacks.stream().map(PossibleAttack::getAfterAttackCoordinates)
                 .forEach(coordinate -> {
                     Image possibleAttackImage = new Image("file:src/main/resources/Assets/attackMove.png");
                     ImageView imageView = new ImageView(possibleAttackImage);
                     imageView.setOpacity(0.5);
+                    imageView.setId(this.id + " AttackMark " + i.intValue());
+                    i.incrementAndGet();
                     imageView.setOnMouseClicked(boardController::onMarkClicked);
                     board.add(imageView,coordinate.getColumnIndex(),coordinate.getRowIndex());
-                    marks.add(imageView);
+                    marksImageView.add(imageView);
+                    Mark mark = new Mark(imageView.getId(), imageView, coordinate, MarkTypes.ATTACK);
+                    markMap.put(mark.getId(), mark);
                 });
             }
 
     private void markPossibleMoves(List<Coordinates>coordinates ){
 
-        coordinates.forEach(coordinate -> {
+        AtomicInteger i = new AtomicInteger(0);
 
+        coordinates.forEach(coordinate -> {
         Image possibleMovesImage = new Image("file:src/main/resources/Assets/movesThatCanBeSelected.png");
         ImageView imageView = new ImageView(possibleMovesImage);
         imageView.setOpacity(0.5);
+        imageView.setId(this.id + " MoveMark " + i.intValue());
+        i.incrementAndGet();
         imageView.setOnMouseClicked(boardController::onMarkClicked);
         board.add(imageView,coordinate.getColumnIndex(),coordinate.getRowIndex());
-        marks.add(imageView);
+        marksImageView.add(imageView);
+        Mark mark = new Mark(imageView.getId(), imageView, coordinate, MarkTypes.MOVE);
+        markMap.put(mark.getId(), mark);
         });
 
     }
@@ -295,10 +308,18 @@ public class Figure {
         return resultList;
     }
 
-    private void moveNodeToCoordinates(Node node, GridPane board, int column, int row){
-        if (getNodesByRowColumnIndex(column, row, board).size() == 0 ) {
-            GridPane.setColumnIndex(node, column);
-            GridPane.setRowIndex(node,row);
+    //TODO fix move method and add attack method
+    public void moveNodeToCoordinates(Coordinates c){
+        Node node = this.figureImageView;
+        GridPane board = this.board;
+
+        System.out.println("jestesmy tutaj");
+
+        if (getNodesByRowColumnIndex(c.getColumnIndex(), c.getRowIndex(), board).size() == 0 ) {
+            GridPane.setColumnIndex(node, c.getColumnIndex());
+            GridPane.setRowIndex(node,c.getRowIndex());
+            columnCoordinate = c.getColumnIndex();
+            rowCoordinate = c.getRowIndex();
         }
 
     }

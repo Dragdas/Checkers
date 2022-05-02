@@ -18,6 +18,7 @@ public class BoardController implements Initializable {
     private GridPane board;
 
     private Map<String, Figure> figureMap = new HashMap<>();
+    private Figure selected;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -45,7 +46,7 @@ public class BoardController implements Initializable {
     public void onPawnClick(MouseEvent e){
         //mark selected node for future actions
         Node clickedNode = (Node)e.getTarget();
-        Figure selected = figureMap.get(clickedNode.getId());
+        selected = figureMap.get(clickedNode.getId());
 
         //deselect previous selection
         figureMap.values().stream()
@@ -57,7 +58,20 @@ public class BoardController implements Initializable {
     }
 
     public void onMarkClicked(MouseEvent event){
-        System.out.println("dziala");
+
+        Node clickedNode = (Node)event.getTarget();
+        Mark selectedMark = selected.getMarkByID(clickedNode.getId());
+
+        if( selectedMark.getMarkType() == MarkTypes.ATTACK ){
+            System.out.println("attack mark clicked");
+        }else if (selectedMark.getMarkType() == MarkTypes.MOVE){
+            System.out.println("Move mark clicked");
+            selected.moveNodeToCoordinates(selectedMark.getCoordinates());
+        }
+
+
+
+
     }
 
     public Figure getFigureFromMap(String id){
