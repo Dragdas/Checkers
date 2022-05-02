@@ -308,19 +308,18 @@ public class Figure {
         return resultList;
     }
 
-    //TODO fix move method and add attack method
+    // TODO  attackmove
     public void moveNodeToCoordinates(Coordinates c){
         Node node = this.figureImageView;
-        GridPane board = this.board;
 
-        System.out.println("jestesmy tutaj");
+        deselect();
+        GridPane.setColumnIndex(node, c.getColumnIndex());
+        GridPane.setRowIndex(node,c.getRowIndex());
+        columnCoordinate = c.getColumnIndex();
+        rowCoordinate = c.getRowIndex();
 
-        if (getNodesByRowColumnIndex(c.getColumnIndex(), c.getRowIndex(), board).size() == 0 ) {
-            GridPane.setColumnIndex(node, c.getColumnIndex());
-            GridPane.setRowIndex(node,c.getRowIndex());
-            columnCoordinate = c.getColumnIndex();
-            rowCoordinate = c.getRowIndex();
-        }
+        //TODO implermernt promote
+
 
     }
 
