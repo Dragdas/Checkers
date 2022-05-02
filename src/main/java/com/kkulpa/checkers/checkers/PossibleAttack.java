@@ -12,6 +12,10 @@ public class PossibleAttack {
         this.afterAttackCoordinates = afterAttackCoordinates;
     }
 
+    public Figure getEnemy() {
+        return enemy;
+    }
+
     @Override
     public String toString() {
         return "PossibleAttack{" +

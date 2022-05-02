@@ -3,9 +3,6 @@ package com.kkulpa.checkers.checkers;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 
@@ -24,22 +21,22 @@ public class BoardController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         board.getChildren().removeAll(board.getChildren());
 
-        //fillBoardWithPawns();
-        figureMap.put("bp5", new Figure(FigureTypes.PAWN,FigureColor.BLACK,6,3,board,this,"bp5"));
-        figureMap.put("rp4", new Figure(FigureTypes.PAWN, FigureColor.RED, 3,2, board,this, "rp4"));
-        figureMap.put("rp3", new Figure(FigureTypes.PAWN, FigureColor.RED, 1,4, board,this, "rp3"));
-        figureMap.put("rp2", new Figure(FigureTypes.PAWN, FigureColor.RED, 1,6, board,this, "rp2"));
-        figureMap.put("rp1", new Figure(FigureTypes.PAWN, FigureColor.RED, 1,2, board,this, "rp1"));
-        figureMap.put("rp11", new Figure(FigureTypes.PAWN, FigureColor.RED, 5,4, board,this, "rp11"));
-        figureMap.put("bp2", new Figure(FigureTypes.PAWN,FigureColor.BLACK,0,7,board,this,"bp2"));
-        figureMap.put("bp4", new Figure(FigureTypes.PAWN,FigureColor.BLACK,4,5,board,this,"bp4"));
-        figureMap.put("rp9", new Figure(FigureTypes.PAWN, FigureColor.RED, 3,4, board,this, "rp9"));
-
-
-        Figure selected = figureMap.get("rp11");
-        selected.promote();
-        selected = figureMap.get("bp2");
-        selected.promote();
+        fillBoardWithPawns();
+//        figureMap.put("bp5", new Figure(FigureTypes.PAWN,FigureColor.BLACK,6,3,board,this,"bp5"));
+//        figureMap.put("rp4", new Figure(FigureTypes.PAWN, FigureColor.RED, 3,2, board,this, "rp4"));
+//        figureMap.put("rp3", new Figure(FigureTypes.PAWN, FigureColor.RED, 1,4, board,this, "rp3"));
+//        figureMap.put("rp2", new Figure(FigureTypes.PAWN, FigureColor.RED, 1,6, board,this, "rp2"));
+//        figureMap.put("rp1", new Figure(FigureTypes.PAWN, FigureColor.RED, 1,2, board,this, "rp1"));
+//        figureMap.put("rp11", new Figure(FigureTypes.PAWN, FigureColor.RED, 5,4, board,this, "rp11"));
+//        figureMap.put("bp2", new Figure(FigureTypes.PAWN,FigureColor.BLACK,0,7,board,this,"bp2"));
+//        figureMap.put("bp4", new Figure(FigureTypes.PAWN,FigureColor.BLACK,4,5,board,this,"bp4"));
+//        figureMap.put("rp9", new Figure(FigureTypes.PAWN, FigureColor.RED, 3,4, board,this, "rp9"));
+//
+//
+//        Figure selected = figureMap.get("rp11");
+//        selected.promote();
+//        selected = figureMap.get("bp2");
+//        selected.promote();
 
     }
 
@@ -64,9 +61,9 @@ public class BoardController implements Initializable {
 
         if( selectedMark.getMarkType() == MarkTypes.ATTACK ){
             System.out.println("attack mark clicked");
+            selected.attackFigure(selectedMark);
         }else if (selectedMark.getMarkType() == MarkTypes.MOVE){
-            System.out.println("Move mark clicked");
-            selected.moveNodeToCoordinates(selectedMark.getCoordinates());
+            selected.moveFigure(selectedMark.getCoordinates());
         }
 
 
@@ -102,7 +99,7 @@ public class BoardController implements Initializable {
         figureMap.put("bp8", new Figure(FigureTypes.PAWN,FigureColor.BLACK,7,6,board,this,"bp8"));
         figureMap.put("bp9", new Figure(FigureTypes.PAWN,FigureColor.BLACK,0,7,board,this,"bp9"));
         figureMap.put("bp10", new Figure(FigureTypes.PAWN,FigureColor.BLACK,2,7,board,this,"bp10"));
-        figureMap.put("bp11", new Figure(FigureTypes.PAWN,FigureColor.BLACK,4,7,board,this,"bp111"));
+        figureMap.put("bp11", new Figure(FigureTypes.PAWN,FigureColor.BLACK,4,7,board,this,"bp11"));
         figureMap.put("bp12", new Figure(FigureTypes.PAWN,FigureColor.BLACK,6,7,board,this,"bp12"));
     }
 

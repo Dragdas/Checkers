@@ -52,20 +52,6 @@ public class Figure {
 
     }
 
-    @Override
-    public String toString() {
-        return "Figure{" +
-                "figureType=" + figureType +
-                ", figureColor=" + figureColor +
-                ", columntCoordinate=" + columnCoordinate +
-                ", rowCoordinate=" + rowCoordinate +
-                ", id='" + id + '\'' +
-                '}';
-    }
-
-    public boolean isSelected() {
-        return isSelected;
-    }
 
 
     //Mark this figure as selected and draws possible moves
@@ -84,6 +70,36 @@ public class Figure {
         markPossibleAttacks(findPossibleAttacks());
 
     }
+
+    public void attackFigure(Mark mark){
+        if(mark.getMarkType() != MarkTypes.ATTACK && mark.getEnemy() != null)
+            return;
+
+        mark.getEnemy().kill();
+        moveFigure(mark.getCoordinates());
+
+    }
+
+    public void kill(){
+        board.getChildren().remove(figureImageView);
+    }
+
+    public void moveFigure(Coordinates c){
+        Node node = this.figureImageView;
+
+        deselect();
+        GridPane.setColumnIndex(node, c.getColumnIndex());
+        GridPane.setRowIndex(node,c.getRowIndex());
+        columnCoordinate = c.getColumnIndex();
+        rowCoordinate = c.getRowIndex();
+
+        if(figureColor == FigureColor.BLACK && figureType == FigureTypes.PAWN && rowCoordinate == 0)
+            promote();
+        if(figureColor == FigureColor.RED && figureType == FigureTypes.PAWN && rowCoordinate == 7)
+            promote();
+
+    }
+
 
     public void deselect(){
         board.getChildren().removeAll(marksImageView);
@@ -114,6 +130,21 @@ public class Figure {
 
     public Mark getMarkByID(String id){
         return markMap.get(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Figure{" +
+                "figureType=" + figureType +
+                ", figureColor=" + figureColor +
+                ", columntCoordinate=" + columnCoordinate +
+                ", rowCoordinate=" + rowCoordinate +
+                ", id='" + id + '\'' +
+                '}';
+    }
+
+    public boolean isSelected() {
+        return isSelected;
     }
 
     private List<PossibleAttack> findPossibleAttacks(){
@@ -229,17 +260,17 @@ public class Figure {
 
         AtomicInteger i = new AtomicInteger(0);
 
-        attacks.stream().map(PossibleAttack::getAfterAttackCoordinates)
-                .forEach(coordinate -> {
+        attacks.stream()
+                    .forEach(possibleAttack -> {
                     Image possibleAttackImage = new Image("file:src/main/resources/Assets/attackMove.png");
                     ImageView imageView = new ImageView(possibleAttackImage);
                     imageView.setOpacity(0.5);
                     imageView.setId(this.id + " AttackMark " + i.intValue());
                     i.incrementAndGet();
                     imageView.setOnMouseClicked(boardController::onMarkClicked);
-                    board.add(imageView,coordinate.getColumnIndex(),coordinate.getRowIndex());
+                    board.add(imageView,possibleAttack.getAfterAttackCoordinates().getColumnIndex(), possibleAttack.getAfterAttackCoordinates().getRowIndex());
                     marksImageView.add(imageView);
-                    Mark mark = new Mark(imageView.getId(), imageView, coordinate, MarkTypes.ATTACK);
+                    Mark mark = new Mark(imageView.getId(), imageView, possibleAttack.getAfterAttackCoordinates(), MarkTypes.ATTACK, possibleAttack.getEnemy());
                     markMap.put(mark.getId(), mark);
                 });
             }
@@ -308,21 +339,9 @@ public class Figure {
         return resultList;
     }
 
-    // TODO  attackmove
-    public void moveNodeToCoordinates(Coordinates c){
-        Node node = this.figureImageView;
-
-        deselect();
-        GridPane.setColumnIndex(node, c.getColumnIndex());
-        GridPane.setRowIndex(node,c.getRowIndex());
-        columnCoordinate = c.getColumnIndex();
-        rowCoordinate = c.getRowIndex();
-
-        //TODO implermernt promote
 
 
-    }
-
+    //TODO change to private
     public void promote() {
         figureType = FigureTypes.KING;
         if(figureColor == FigureColor.RED){
@@ -339,8 +358,3 @@ public class Figure {
 }
 
 
-//
-//    Integer c = GridPane.getColumnIndex(clickedNode);
-//    Integer r = GridPane.getRowIndex(clickedNode);
-//    int targetColumnIndex  = c == null ? 0 : c;
-//    int targetRowIndex     = r == null ? 0 : r;
