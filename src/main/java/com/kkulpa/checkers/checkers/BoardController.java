@@ -59,6 +59,10 @@ public class BoardController implements Initializable {
         Node clickedNode = (Node)e.getTarget();
         selectedFigure = figureMap.get(clickedNode.getId());
 
+        System.out.println("attacks: " + selectedFigure.possibleAttacksCount());
+        System.out.println("attacks: " + selectedFigure.possibleMovesCount());
+
+
         if(selectedFigure.getFigureColor() == gameManger.getCurrentTurn()) {
             //deselect previous selection
             figureMap.values().stream()
@@ -67,6 +71,7 @@ public class BoardController implements Initializable {
             // select figure
             selectedFigure.select(false);
         }
+
 
     }
 
@@ -93,6 +98,10 @@ public class BoardController implements Initializable {
             gameManger.endTurn(turnIndicator);
         }
 
+    }
+
+    public List<Figure> getFigures(){
+        return  figureMap.values().stream().toList();
     }
 
     public Figure getFigureFromMap(String id){

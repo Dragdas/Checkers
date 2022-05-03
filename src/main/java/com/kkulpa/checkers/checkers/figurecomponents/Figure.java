@@ -63,6 +63,7 @@ public class Figure {
         Image selectedPawnImage = new Image("file:src/main/resources/Assets/move.png");
         ImageView selectedPawnImageView = new ImageView(selectedPawnImage);
         selectedPawnImageView.setOpacity(0.5);
+        selectedPawnImageView.setId("selection Mark");
         marksImageView.add(selectedPawnImageView);
         board.add(selectedPawnImageView, columnCoordinate, rowCoordinate);
         board.add(figureImageView, columnCoordinate, rowCoordinate);
@@ -110,6 +111,14 @@ public class Figure {
         marksImageView.clear();
         isSelected = false;
 
+    }
+
+    public int possibleMovesCount(){
+        return findPossibleMoves().size();
+    }
+
+    public int possibleAttacksCount(){
+        return findPossibleAttacks().size();
     }
 
     public List<Node> getMarksImageView(){
@@ -313,8 +322,13 @@ public class Figure {
 
 
     private boolean isCellEmpty(int columnIndex, int rowIndex){
-        List<Node> nodesByRowColumnIndex = getNodesByRowColumnIndex(columnIndex, rowIndex, board);
-        return nodesByRowColumnIndex.size() == 0;
+        if (getNodesByRowColumnIndex(columnIndex, rowIndex, board).size() == 0)
+            return true;
+
+        List<Node> nodesByRowColumnIndex = getNodesByRowColumnIndex(columnIndex, rowIndex, board).stream()
+                .filter(Objects::nonNull)
+                .filter( node -> !node.getId().contains("Mark")).toList();
+        return nodesByRowColumnIndex.size() == 0 ;
     }
 
     private boolean isCellOccupiedByEnemy(int columnIndex, int rowIndex){

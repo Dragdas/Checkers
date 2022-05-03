@@ -36,6 +36,9 @@ public class GameManger {
         //TODO no possible moves victory
         //TODO forced attack and pawn selections constrains to be added
 
+
+
+
         if(boardController.getFiguresCountByColour(currentTurn) == 0 ){
             isGameOver = true;
             winner = currentTurn == FigureColor.BLACK ? FigureColor.RED : FigureColor.BLACK;
