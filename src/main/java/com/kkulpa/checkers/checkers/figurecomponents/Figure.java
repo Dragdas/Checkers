@@ -69,7 +69,7 @@ public class Figure {
         board.add(figureImageView, columnCoordinate, rowCoordinate);
 
         markPossibleAttacks(findPossibleAttacks());
-        if (!isForcedToAttack)
+        if (!isForcedToAttack && possibleAttacksCount() == 0)
             markPossibleMoves(findPossibleMoves());
 
 
@@ -173,7 +173,7 @@ public class Figure {
         return isSelected;
     }
 
-    private List<PossibleAttack> findPossibleAttacks(){
+    public List<PossibleAttack> findPossibleAttacks(){
         List<PossibleAttack> result = new ArrayList<>();
 
         //case redFigures
@@ -370,10 +370,7 @@ public class Figure {
         return resultList;
     }
 
-
-
-    //TODO change to private
-    public void promote() {
+    private void promote() {
         figureType = FigureTypes.KING;
         if(figureColor == FigureColor.RED){
             Image kingsImage = new Image("file:src/main/resources/Assets/RedKing.png");
@@ -384,7 +381,6 @@ public class Figure {
             figureImageView.setImage(kingsImage);
         }
     }
-
 
 }
 

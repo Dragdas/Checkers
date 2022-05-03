@@ -2,7 +2,10 @@ package com.kkulpa.checkers.checkers.gamemanager;
 
 import com.kkulpa.checkers.checkers.BoardController;
 import com.kkulpa.checkers.checkers.figurecomponents.FigureColor;
+import com.kkulpa.checkers.checkers.figurecomponents.PossibleAttack;
 import javafx.scene.text.Text;
+
+import java.util.List;
 
 public class GameManger {
 
@@ -26,30 +29,45 @@ public class GameManger {
             text.setText("It's black's turn");
         }
         checkForVictory();
-
+        if (winner != null)
+            text.setText("Player with " + winner + " pieces won! GZ");
     }
 
-    //TODO
     private void checkForVictory(){
-        System.out.println("I dont know xD");
+        //no possible moves win condition
+        long numberOfPossibleAttacks = boardController.getFigures().stream()
+                .filter(figure -> figure.getFigureColor() == currentTurn)
+                .mapToLong(figure -> figure.possibleAttacksCount() + figure.possibleMovesCount())
+                .sum();
 
-        //TODO no possible moves victory
-        //TODO forced attack and pawn selections constrains to be added
-
-
-
-
-        if(boardController.getFiguresCountByColour(currentTurn) == 0 ){
+        // no more figures win condition or out of moves win condition
+        if(boardController.getFiguresCountByColour(currentTurn) == 0 || numberOfPossibleAttacks == 0 ){
             isGameOver = true;
             winner = currentTurn == FigureColor.BLACK ? FigureColor.RED : FigureColor.BLACK;
             System.out.println("Player in " + winner + " won! GZ");
         }
-
-
-
     }
 
+    public boolean isFigureClickValid(String id){
+        //forced attack logic
+        List<String> possibleAttackersIDs = boardController.getFigures().stream()
+                .filter(figure -> figure.getFigureColor() == currentTurn)
+                .flatMap(figure -> figure.findPossibleAttacks().stream())
+                .map(possibleAttack -> possibleAttack.getAttacker().getId())
+                .toList();
 
+        if ( possibleAttackersIDs.size() > 0 ){
+            return possibleAttackersIDs.contains(id);
+        }
+
+        // general move logic
+        if ( id.startsWith("r") && currentTurn == FigureColor.RED)
+            return true;
+        if ( id.startsWith("b") && currentTurn == FigureColor.BLACK)
+            return true;
+
+        return false;
+    }
 
 
     public FigureColor getCurrentTurn() {

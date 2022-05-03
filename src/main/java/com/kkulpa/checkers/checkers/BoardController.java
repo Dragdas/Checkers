@@ -30,38 +30,21 @@ public class BoardController implements Initializable {
         board.getChildren().removeAll(board.getChildren());
         gameManger = new GameManger(FigureColor.BLACK, this);
         fillBoardWithPawns();
-//        figureMap.put("bp5", new Figure(FigureTypes.PAWN,FigureColor.BLACK,6,3,board,this,"bp5"));
-//        figureMap.put("rp4", new Figure(FigureTypes.PAWN, FigureColor.RED, 3,2, board,this, "rp4"));
-//        figureMap.put("rp3", new Figure(FigureTypes.PAWN, FigureColor.RED, 1,4, board,this, "rp3"));
-//        figureMap.put("rp2", new Figure(FigureTypes.PAWN, FigureColor.RED, 1,6, board,this, "rp2"));
-//        figureMap.put("rp1", new Figure(FigureTypes.PAWN, FigureColor.RED, 1,2, board,this, "rp1"));
-//        figureMap.put("rp11", new Figure(FigureTypes.PAWN, FigureColor.RED, 5,4, board,this, "rp11"));
-//        figureMap.put("bp2", new Figure(FigureTypes.PAWN,FigureColor.BLACK,0,7,board,this,"bp2"));
-//        figureMap.put("bp4", new Figure(FigureTypes.PAWN,FigureColor.BLACK,4,5,board,this,"bp4"));
-//        figureMap.put("rp9", new Figure(FigureTypes.PAWN, FigureColor.RED, 3,4, board,this, "rp9"));
-//
-//
-//        Figure selected = figureMap.get("rp11");
-//        selected.promote();
-//        selected = figureMap.get("bp2");
-//        selected.promote();
 
     }
 
-    //TODO turn control & win conditions
     // TODO ai
 
     public void onPawnClick(MouseEvent e){
+        Node clickedNode = (Node)e.getTarget();
+        //Guard clause for multiple attacks
         if (isAfterAttack)
             return;
+        // gard clause for invalid figure selection
+        if (!gameManger.isFigureClickValid(clickedNode.getId()) )
+            return;
 
-        //mark selected node for future actions
-        Node clickedNode = (Node)e.getTarget();
         selectedFigure = figureMap.get(clickedNode.getId());
-
-        System.out.println("attacks: " + selectedFigure.possibleAttacksCount());
-        System.out.println("attacks: " + selectedFigure.possibleMovesCount());
-
 
         if(selectedFigure.getFigureColor() == gameManger.getCurrentTurn()) {
             //deselect previous selection
@@ -71,7 +54,6 @@ public class BoardController implements Initializable {
             // select figure
             selectedFigure.select(false);
         }
-
 
     }
 
@@ -90,9 +72,6 @@ public class BoardController implements Initializable {
                 gameManger.endTurn(turnIndicator);
                 isAfterAttack = false;
             }
-
-
-
         }else if (selectedMark.getMarkType() == MarkTypes.MOVE){
             selectedFigure.moveFigure(selectedMark.getCoordinates());
             gameManger.endTurn(turnIndicator);

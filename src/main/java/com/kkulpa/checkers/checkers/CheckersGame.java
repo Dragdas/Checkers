@@ -18,11 +18,10 @@ public class CheckersGame extends Application {
     @Override
     public void start(Stage stage) throws Exception {
 
-        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("CheckersBoardReady.fxml")));
-        Scene scene = new Scene(root);
+        Parent boardRoot = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("CheckersBoardReady.fxml")));
+        Scene sceneBoard = new Scene(boardRoot);
 
-        stage.setScene(scene);
-
+        stage.setScene(sceneBoard);
         stage.show();
     }
 }

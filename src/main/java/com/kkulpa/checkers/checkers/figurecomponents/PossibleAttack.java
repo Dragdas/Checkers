@@ -16,6 +16,10 @@ public class PossibleAttack {
         return enemy;
     }
 
+    public Figure getAttacker() {
+        return attacker;
+    }
+
     @Override
     public String toString() {
         return "PossibleAttack{" +
