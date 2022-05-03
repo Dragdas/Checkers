@@ -1,5 +1,6 @@
-package com.kkulpa.checkers.checkers;
+package com.kkulpa.checkers.checkers.figurecomponents;
 
+import com.kkulpa.checkers.checkers.*;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -10,7 +11,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.kkulpa.checkers.checkers.Coordinates.isCoordinateValid;
+import static com.kkulpa.checkers.checkers.figurecomponents.Coordinates.isCoordinateValid;
 
 public class Figure {
 
@@ -55,7 +56,7 @@ public class Figure {
 
 
     //Mark this figure as selected and draws possible moves
-    public void select(){
+    public void select(boolean isForcedToAttack){
         isSelected = true;
 
         board.getChildren().remove(figureImageView);
@@ -66,8 +67,10 @@ public class Figure {
         board.add(selectedPawnImageView, columnCoordinate, rowCoordinate);
         board.add(figureImageView, columnCoordinate, rowCoordinate);
 
-        markPossibleMoves(findPossibleMoves());
         markPossibleAttacks(findPossibleAttacks());
+        if (!isForcedToAttack)
+            markPossibleMoves(findPossibleMoves());
+
 
     }
 
@@ -103,6 +106,8 @@ public class Figure {
 
     public void deselect(){
         board.getChildren().removeAll(marksImageView);
+        markMap.clear();
+        marksImageView.clear();
         isSelected = false;
 
     }
@@ -113,6 +118,10 @@ public class Figure {
 
     public String getId() {
         return id;
+    }
+
+    public FigureColor getFigureColor() {
+        return figureColor;
     }
 
     @Override
@@ -141,6 +150,14 @@ public class Figure {
                 ", rowCoordinate=" + rowCoordinate +
                 ", id='" + id + '\'' +
                 '}';
+    }
+
+    public int getMarksCount(){
+        return marksImageView.size();
+    }
+
+    public long getAttackMarksCount(){
+        return markMap.values().stream().filter(mark -> mark.getMarkType() == MarkTypes.ATTACK).count();
     }
 
     public boolean isSelected() {

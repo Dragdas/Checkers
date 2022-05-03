@@ -1,10 +1,13 @@
 package com.kkulpa.checkers.checkers;
 
+import com.kkulpa.checkers.checkers.figurecomponents.*;
+import com.kkulpa.checkers.checkers.gamemanager.GameManger;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.*;
@@ -14,13 +17,18 @@ public class BoardController implements Initializable {
     @FXML
     private GridPane board;
 
+    @FXML
+    private Text turnIndicator;
+
     private Map<String, Figure> figureMap = new HashMap<>();
-    private Figure selected;
+    private Figure selectedFigure;
+    private GameManger gameManger;
+    private boolean isAfterAttack = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         board.getChildren().removeAll(board.getChildren());
-
+        gameManger = new GameManger(FigureColor.BLACK, this);
         fillBoardWithPawns();
 //        figureMap.put("bp5", new Figure(FigureTypes.PAWN,FigureColor.BLACK,6,3,board,this,"bp5"));
 //        figureMap.put("rp4", new Figure(FigureTypes.PAWN, FigureColor.RED, 3,2, board,this, "rp4"));
@@ -40,39 +48,59 @@ public class BoardController implements Initializable {
 
     }
 
+    //TODO turn control & win conditions
+    // TODO ai
+
     public void onPawnClick(MouseEvent e){
+        if (isAfterAttack)
+            return;
+
         //mark selected node for future actions
         Node clickedNode = (Node)e.getTarget();
-        selected = figureMap.get(clickedNode.getId());
+        selectedFigure = figureMap.get(clickedNode.getId());
 
-        //deselect previous selection
-        figureMap.values().stream()
-                .filter(Figure::isSelected)
-                .forEach(Figure::deselect);
-        // select figure
-        selected.select();
+        if(selectedFigure.getFigureColor() == gameManger.getCurrentTurn()) {
+            //deselect previous selection
+            figureMap.values().stream()
+                    .filter(Figure::isSelected)
+                    .forEach(Figure::deselect);
+            // select figure
+            selectedFigure.select(false);
+        }
 
     }
 
     public void onMarkClicked(MouseEvent event){
 
         Node clickedNode = (Node)event.getTarget();
-        Mark selectedMark = selected.getMarkByID(clickedNode.getId());
+        Mark selectedMark = selectedFigure.getMarkByID(clickedNode.getId());
 
         if( selectedMark.getMarkType() == MarkTypes.ATTACK ){
-            System.out.println("attack mark clicked");
-            selected.attackFigure(selectedMark);
+            selectedFigure.attackFigure(selectedMark);
+            figureMap.remove(selectedMark.getEnemy().getId());
+            isAfterAttack = true;
+            selectedFigure.select(true);
+            if(selectedFigure.getAttackMarksCount() == 0){
+                selectedFigure.deselect();
+                gameManger.endTurn(turnIndicator);
+                isAfterAttack = false;
+            }
+
+
+
         }else if (selectedMark.getMarkType() == MarkTypes.MOVE){
-            selected.moveFigure(selectedMark.getCoordinates());
+            selectedFigure.moveFigure(selectedMark.getCoordinates());
+            gameManger.endTurn(turnIndicator);
         }
-
-
-
 
     }
 
     public Figure getFigureFromMap(String id){
         return figureMap.get(id);
+    }
+
+    public long getFiguresCountByColour(FigureColor color){
+        return figureMap.values().stream().filter(figure -> figure.getFigureColor() == color).count();
     }
 
     private void fillBoardWithPawns(){

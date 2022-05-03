@@ -1,4 +1,4 @@
-package com.kkulpa.checkers.checkers;
+package com.kkulpa.checkers.checkers.figurecomponents;
 
 import java.util.Objects;
 

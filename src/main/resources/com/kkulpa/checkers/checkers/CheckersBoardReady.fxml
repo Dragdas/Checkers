@@ -6,6 +6,8 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kkulpa.checkers.checkers.BoardController">
    <children>
@@ -173,5 +175,10 @@
             <Image url="@../../../../Assets/selectedPawn.png" />
          </image>
       </ImageView>
+      <Text fx:id="turnIndicator" fill="WHITE" layoutX="361.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Its black's turn" textAlignment="CENTER">
+         <font>
+            <Font size="28.0" />
+         </font>
+      </Text>
    </children>
 </AnchorPane>
