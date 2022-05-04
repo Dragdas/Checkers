@@ -1,10 +1,14 @@
 package com.kkulpa.checkers.checkers;
 
+import com.kkulpa.checkers.checkers.AI.AiOpponent;
 import com.kkulpa.checkers.checkers.figurecomponents.*;
 import com.kkulpa.checkers.checkers.gamemanager.GameManger;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
@@ -30,6 +34,20 @@ public class BoardController implements Initializable {
         board.getChildren().removeAll(board.getChildren());
         gameManger = new GameManger(FigureColor.BLACK, this);
         fillBoardWithPawns();
+
+        turnIndicator.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (newValue.contains("red")){
+                    System.out.println("time for ai to kick in");
+                    AiOpponent.executeTurn(getFigures().stream().filter(figure -> figure.getFigureColor() == FigureColor.RED).toList());
+                }
+
+            }
+        });
+
+
+
 
     }
 
@@ -78,6 +96,10 @@ public class BoardController implements Initializable {
         }
 
     }
+
+
+
+
 
     public List<Figure> getFigures(){
         return  figureMap.values().stream().toList();

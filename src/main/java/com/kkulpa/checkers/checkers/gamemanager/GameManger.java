@@ -29,6 +29,8 @@ public class GameManger {
             text.setText("It's black's turn");
         }
         checkForVictory();
+
+        //TODO some play new game or exit popup
         if (winner != null)
             text.setText("Player with " + winner + " pieces won! GZ");
     }

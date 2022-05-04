@@ -175,7 +175,7 @@
             <Image url="@../../../../Assets/selectedPawn.png" />
          </image>
       </ImageView>
-      <Text fx:id="turnIndicator" fill="WHITE" layoutX="361.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Its black's turn" textAlignment="CENTER">
+      <Text fx:id="turnIndicator" fill="WHITE" layoutX="6.0" layoutY="53.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Its black's turn" textAlignment="CENTER" wrappingWidth="889.734375">
          <font>
             <Font size="28.0" />
          </font>

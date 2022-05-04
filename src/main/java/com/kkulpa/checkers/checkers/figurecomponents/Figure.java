@@ -70,7 +70,7 @@ public class Figure {
 
         markPossibleAttacks(findPossibleAttacks());
         if (!isForcedToAttack && possibleAttacksCount() == 0)
-            markPossibleMoves(findPossibleMoves());
+            markPossibleMoves(getPossibleMoves());
 
 
     }
@@ -114,7 +114,7 @@ public class Figure {
     }
 
     public int possibleMovesCount(){
-        return findPossibleMoves().size();
+        return getPossibleMoves().size();
     }
 
     public int possibleAttacksCount(){
@@ -243,7 +243,7 @@ public class Figure {
             return null;
     }
 
-    private List<Coordinates> findPossibleMoves(){
+    public List<Coordinates> getPossibleMoves(){
         List<Coordinates> result = new ArrayList<>();
 
         // case red figure
