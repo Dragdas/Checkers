@@ -15,6 +15,7 @@ import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class BoardController implements Initializable {
 
@@ -27,6 +28,7 @@ public class BoardController implements Initializable {
     private Map<String, Figure> figureMap = new HashMap<>();
     private Figure selectedFigure;
     private GameManger gameManger;
+    private BoardController boardController = this;
     private boolean isAfterAttack = false;
 
     @Override
@@ -39,25 +41,46 @@ public class BoardController implements Initializable {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if (newValue.contains("red")){
-                    System.out.println("time for ai to kick in");
-                    AiOpponent.executeTurn(getFigures().stream().filter(figure -> figure.getFigureColor() == FigureColor.RED).toList());
+                    AiOpponent.executeTurn(getFigures().stream().filter(figure -> figure.getFigureColor() == FigureColor.RED).toList(), boardController);
                 }
 
             }
         });
 
-
-
-
     }
 
     // TODO ai
+
+    public void executeAiMove(PossibleMove aiMove)  {
+        aiMove.getFigure().moveFigure(aiMove.getCoordinatesAfterMove());
+        gameManger.endTurn(turnIndicator);
+    }
+
+    public void executeAiAttack(PossibleAttack aiAttack){
+        Figure attacker = aiAttack.getAttacker();
+
+        attacker.attackFigure(aiAttack.getEnemy(), aiAttack.getAfterAttackCoordinates());
+        figureMap.remove(aiAttack.getEnemy().getId());
+
+        //chain attack logic
+        while ( attacker.possibleAttacksCount() > 0 ){
+            Random rand = new Random();
+            PossibleAttack possibleAttack = attacker.findPossibleAttacks().get(rand.nextInt(attacker.possibleAttacksCount()));
+            possibleAttack.getAttacker().attackFigure(possibleAttack.getEnemy(),possibleAttack.getAfterAttackCoordinates());
+            figureMap.remove(possibleAttack.getEnemy().getId());
+        }
+
+        gameManger.endTurn(turnIndicator);
+    }
+
 
     public void onPawnClick(MouseEvent e){
         Node clickedNode = (Node)e.getTarget();
         //Guard clause for multiple attacks
         if (isAfterAttack)
             return;
+
+        System.out.println(gameManger.isFigureClickValid(clickedNode.getId()));
         // gard clause for invalid figure selection
         if (!gameManger.isFigureClickValid(clickedNode.getId()) )
             return;
@@ -139,6 +162,18 @@ public class BoardController implements Initializable {
         figureMap.put("bp10", new Figure(FigureTypes.PAWN,FigureColor.BLACK,2,7,board,this,"bp10"));
         figureMap.put("bp11", new Figure(FigureTypes.PAWN,FigureColor.BLACK,4,7,board,this,"bp11"));
         figureMap.put("bp12", new Figure(FigureTypes.PAWN,FigureColor.BLACK,6,7,board,this,"bp12"));
+    }
+
+    private static void wait(int ms)
+    {
+        try
+        {
+            Thread.sleep(ms);
+        }
+        catch(InterruptedException ex)
+        {
+            Thread.currentThread().interrupt();
+        }
     }
 
 }

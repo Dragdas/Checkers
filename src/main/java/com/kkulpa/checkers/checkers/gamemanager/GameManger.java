@@ -59,6 +59,7 @@ public class GameManger {
                 .toList();
 
         if ( possibleAttackersIDs.size() > 0 ){
+            System.out.println("possible attack");
             return possibleAttackersIDs.contains(id);
         }
 

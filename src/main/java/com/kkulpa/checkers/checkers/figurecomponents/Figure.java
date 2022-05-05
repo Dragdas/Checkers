@@ -84,6 +84,11 @@ public class Figure {
 
     }
 
+    public void attackFigure(Figure enemy, Coordinates coordinatesAfterAttack){
+        enemy.kill();
+        moveFigure(coordinatesAfterAttack);
+    }
+
     public void kill(){
         board.getChildren().remove(figureImageView);
     }
@@ -131,6 +136,10 @@ public class Figure {
 
     public FigureColor getFigureColor() {
         return figureColor;
+    }
+
+    public ImageView getFigureImageView() {
+        return figureImageView;
     }
 
     @Override
