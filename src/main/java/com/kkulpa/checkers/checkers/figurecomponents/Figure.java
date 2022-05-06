@@ -12,6 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.kkulpa.checkers.checkers.figurecomponents.Coordinates.isCoordinateValid;
+import static com.kkulpa.checkers.checkers.figurecomponents.FigureColor.*;
+import static com.kkulpa.checkers.checkers.figurecomponents.FigureTypes.*;
 
 public class Figure {
 
@@ -25,9 +27,8 @@ public class Figure {
     private String id;
     private boolean isSelected = false;
     private BoardController boardController;
-
-    List<Node> marksImageView = new ArrayList<>();
-    Map<String, Mark> markMap = new HashMap<>();
+    private List<Node> marksImageView = new ArrayList<>();
+    private Map<String, Mark> markMap = new HashMap<>();
 
 
     public Figure(FigureTypes figureType, FigureColor figureColor, int columnCoordinate, int rowCoordinate, GridPane board, BoardController boardController, String id) {
@@ -39,7 +40,7 @@ public class Figure {
         this.id = id;
         this.boardController =boardController;
 
-        if (figureColor == FigureColor.RED){
+        if (figureColor == RED){
         this.figureImage = new Image("file:src/main/resources/Assets/RedPawn.png");
         }
         else{
@@ -47,41 +48,27 @@ public class Figure {
         }
         figureImageView = new ImageView(figureImage);
         figureImageView.setOnMouseClicked(this.boardController::onPawnClick);
-
         figureImageView.setId(id);
         board.add(figureImageView, this.columnCoordinate, rowCoordinate);
-
     }
-
-
-
-    //Mark this figure as selected and draws possible moves
+    
+    //Marks this figure as selected and draws possible moves
     public void select(boolean isForcedToAttack){
         isSelected = true;
-
-        board.getChildren().remove(figureImageView);
-        Image selectedPawnImage = new Image("file:src/main/resources/Assets/move.png");
-        ImageView selectedPawnImageView = new ImageView(selectedPawnImage);
-        selectedPawnImageView.setOpacity(0.5);
-        selectedPawnImageView.setId("selection Mark");
-        marksImageView.add(selectedPawnImageView);
-        board.add(selectedPawnImageView, columnCoordinate, rowCoordinate);
-        board.add(figureImageView, columnCoordinate, rowCoordinate);
+        markAsSelected();
 
         markPossibleAttacks(findPossibleAttacks());
         if (!isForcedToAttack && possibleAttacksCount() == 0)
             markPossibleMoves(getPossibleMoves());
-
-
     }
 
-    public void attackFigure(Mark mark){
-        if(mark.getMarkType() != MarkTypes.ATTACK && mark.getEnemy() != null)
+    public void attackFigure(Mark attackMark){
+        //check if input is valid
+        if(attackMark.getMarkType() != MarkTypes.ATTACK && attackMark.getEnemy() != null)
             return;
 
-        mark.getEnemy().kill();
-        moveFigure(mark.getCoordinates());
-
+        attackMark.getEnemy().kill();
+        moveFigure(attackMark.getCoordinates());
     }
 
     public void attackFigure(Figure enemy, Coordinates coordinatesAfterAttack){
@@ -102,20 +89,17 @@ public class Figure {
         columnCoordinate = c.getColumnIndex();
         rowCoordinate = c.getRowIndex();
 
-        if(figureColor == FigureColor.BLACK && figureType == FigureTypes.PAWN && rowCoordinate == 0)
+        if(figureColor == BLACK && figureType == PAWN && rowCoordinate == 0)
             promote();
-        if(figureColor == FigureColor.RED && figureType == FigureTypes.PAWN && rowCoordinate == 7)
+        if(figureColor == RED && figureType == PAWN && rowCoordinate == 7)
             promote();
-
     }
-
 
     public void deselect(){
         board.getChildren().removeAll(marksImageView);
         markMap.clear();
         marksImageView.clear();
         isSelected = false;
-
     }
 
     public int possibleMovesCount(){
@@ -126,20 +110,12 @@ public class Figure {
         return findPossibleAttacks().size();
     }
 
-    public List<Node> getMarksImageView(){
-        return marksImageView;
-    }
-
     public String getId() {
         return id;
     }
 
     public FigureColor getFigureColor() {
         return figureColor;
-    }
-
-    public ImageView getFigureImageView() {
-        return figureImageView;
     }
 
     @Override
@@ -170,10 +146,6 @@ public class Figure {
                 '}';
     }
 
-    public int getMarksCount(){
-        return marksImageView.size();
-    }
-
     public long getAttackMarksCount(){
         return markMap.values().stream().filter(mark -> mark.getMarkType() == MarkTypes.ATTACK).count();
     }
@@ -182,11 +154,12 @@ public class Figure {
         return isSelected;
     }
 
+    //TODO check for refactor possibilities
     public List<PossibleAttack> findPossibleAttacks(){
         List<PossibleAttack> result = new ArrayList<>();
 
         //case redFigures
-        if(figureColor == FigureColor.RED){
+        if(figureColor == RED){
             PossibleAttack leftFrontAttack = findAttack("b",-1,+1);
             if(leftFrontAttack != null)
                 result.add(leftFrontAttack);
@@ -195,7 +168,7 @@ public class Figure {
             if(rightFrontAttack != null)
                 result.add(rightFrontAttack);
 
-            if(figureType == FigureTypes.KING){
+            if(figureType == KING){
                 PossibleAttack leftBackAttack = findAttack("b",-1,-1);
                 if(leftBackAttack != null)
                     result.add(leftBackAttack);
@@ -207,7 +180,7 @@ public class Figure {
         }
 
         //case blackFigures
-        if(figureColor == FigureColor.BLACK){
+        if(figureColor == BLACK){
             PossibleAttack leftFrontAttack = findAttack("r",-1,-1);
             if(leftFrontAttack != null)
                 result.add(leftFrontAttack);
@@ -216,7 +189,7 @@ public class Figure {
             if(rightFrontAttack != null)
                 result.add(rightFrontAttack);
 
-            if(figureType == FigureTypes.KING){
+            if(figureType == KING){
                 PossibleAttack leftBackAttack = findAttack("r",-1,+1);
                 if(leftBackAttack != null)
                     result.add(leftBackAttack);
@@ -230,6 +203,7 @@ public class Figure {
         return result;
     }
 
+    //TODO check for refactor possibilities
     private PossibleAttack findAttack(String enemyColourLetter, int columnAxis, int rowAxis) {
         if(        isCellOccupiedByEnemy(columnCoordinate + columnAxis , rowCoordinate + rowAxis)
                 && isCoordinateValid(columnCoordinate + (columnAxis*2), rowCoordinate + (rowAxis*2))
@@ -256,13 +230,13 @@ public class Figure {
         List<Coordinates> result = new ArrayList<>();
 
         // case red figure
-        if(figureColor == FigureColor.RED){
+        if(figureColor == RED){
             if(isCellEmpty(columnCoordinate - 1,rowCoordinate + 1))
                 result.add(new Coordinates(columnCoordinate - 1, rowCoordinate + 1));
             if(isCellEmpty(columnCoordinate + 1,rowCoordinate + 1))
                 result.add(new Coordinates(columnCoordinate + 1,rowCoordinate + 1));
 
-            if(figureType == FigureTypes.KING){
+            if(figureType == KING){
                 if(isCellEmpty(columnCoordinate - 1,rowCoordinate - 1))
                     result.add(new Coordinates(columnCoordinate - 1, rowCoordinate - 1));
                 if(isCellEmpty(columnCoordinate + 1,rowCoordinate - 1))
@@ -271,13 +245,13 @@ public class Figure {
         }
 
         // case black figure
-        if(figureColor == FigureColor.BLACK){
+        if(figureColor == BLACK){
             if(isCellEmpty(columnCoordinate - 1,rowCoordinate - 1))
                 result.add(new Coordinates(columnCoordinate - 1, rowCoordinate - 1));
             if(isCellEmpty(columnCoordinate + 1,rowCoordinate - 1))
                 result.add(new Coordinates(columnCoordinate + 1,rowCoordinate - 1));
 
-            if(figureType == FigureTypes.KING){
+            if(figureType == KING){
                 if(isCellEmpty(columnCoordinate - 1,rowCoordinate + 1))
                     result.add(new Coordinates(columnCoordinate - 1, rowCoordinate + 1));
                 if(isCellEmpty(columnCoordinate + 1,rowCoordinate + 1))
@@ -329,6 +303,16 @@ public class Figure {
 
     }
 
+    private void markAsSelected() {
+        board.getChildren().remove(figureImageView);
+        Image selectedPawnImage = new Image("file:src/main/resources/Assets/move.png");
+        ImageView selectedPawnImageView = new ImageView(selectedPawnImage);
+        selectedPawnImageView.setOpacity(0.5);
+        selectedPawnImageView.setId("selection Mark");
+        marksImageView.add(selectedPawnImageView);
+        board.add(selectedPawnImageView, columnCoordinate, rowCoordinate);
+        board.add(figureImageView, columnCoordinate, rowCoordinate);
+    }
 
     private boolean isCellEmpty(int columnIndex, int rowIndex){
         if (getNodesByRowColumnIndex(columnIndex, rowIndex, board).size() == 0)
@@ -348,10 +332,10 @@ public class Figure {
         List<Node> collect = nodesByRowColumnIndex.stream().filter(node -> {
                     if( node.getId() == null)
                         return false;
-                    if (figureColor == FigureColor.RED) {
+                    if (figureColor == RED) {
                         return node.getId().startsWith("b");
                     }
-                    if ((figureColor == FigureColor.BLACK)) {
+                    if ((figureColor == BLACK)) {
                         return node.getId().startsWith("r");
                     }
                     return false;
@@ -380,12 +364,12 @@ public class Figure {
     }
 
     private void promote() {
-        figureType = FigureTypes.KING;
-        if(figureColor == FigureColor.RED){
+        figureType = KING;
+        if(figureColor == RED){
             Image kingsImage = new Image("file:src/main/resources/Assets/RedKing.png");
             figureImageView.setImage(kingsImage);
         }
-        if(figureColor == FigureColor.BLACK){
+        if(figureColor == BLACK){
             Image kingsImage = new Image("file:src/main/resources/Assets/BlackKing.png");
             figureImageView.setImage(kingsImage);
         }

@@ -3,19 +3,14 @@ package com.kkulpa.checkers.checkers;
 import com.kkulpa.checkers.checkers.AI.AiOpponent;
 import com.kkulpa.checkers.checkers.figurecomponents.*;
 import com.kkulpa.checkers.checkers.gamemanager.GameManger;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
-
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class BoardController implements Initializable {
 
@@ -26,9 +21,9 @@ public class BoardController implements Initializable {
     private Text turnIndicator;
 
     private Map<String, Figure> figureMap = new HashMap<>();
-    private Figure selectedFigure;
     private GameManger gameManger;
-    private BoardController boardController = this;
+
+    private Figure selectedFigure;
     private boolean isAfterAttack = false;
 
     @Override
@@ -37,51 +32,36 @@ public class BoardController implements Initializable {
         gameManger = new GameManger(FigureColor.BLACK, this);
         fillBoardWithPawns();
 
-        turnIndicator.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                if (newValue.contains("red")){
-                    AiOpponent.executeTurn(getFigures().stream().filter(figure -> figure.getFigureColor() == FigureColor.RED).toList(), boardController);
-                }
-
-            }
-        });
-
     }
 
-    // TODO ai
-
-    public void executeAiMove(PossibleMove aiMove)  {
-        aiMove.getFigure().moveFigure(aiMove.getCoordinatesAfterMove());
-        gameManger.endTurn(turnIndicator);
+    public void executeAiMove(PossibleMove aiGeneratedMove)  {
+        aiGeneratedMove.getFigure().moveFigure(aiGeneratedMove.getCoordinatesAfterMove());
+        gameManger.endTurn();
     }
 
-    public void executeAiAttack(PossibleAttack aiAttack){
-        Figure attacker = aiAttack.getAttacker();
+    public void executeAiAttack(PossibleAttack aiGeneratedAttack){
+        Figure attacker = aiGeneratedAttack.getAttacker();
 
-        attacker.attackFigure(aiAttack.getEnemy(), aiAttack.getAfterAttackCoordinates());
-        figureMap.remove(aiAttack.getEnemy().getId());
+        attacker.attackFigure(aiGeneratedAttack.getEnemy(), aiGeneratedAttack.getAfterAttackCoordinates());
+        figureMap.remove(aiGeneratedAttack.getEnemy().getId());
 
         //chain attack logic
         while ( attacker.possibleAttacksCount() > 0 ){
-            Random rand = new Random();
-            PossibleAttack possibleAttack = attacker.findPossibleAttacks().get(rand.nextInt(attacker.possibleAttacksCount()));
-            possibleAttack.getAttacker().attackFigure(possibleAttack.getEnemy(),possibleAttack.getAfterAttackCoordinates());
-            figureMap.remove(possibleAttack.getEnemy().getId());
+            PossibleAttack forcedAttack = AiOpponent.generateAttackWhenForced(attacker);
+            forcedAttack.getAttacker().attackFigure(forcedAttack.getEnemy(),forcedAttack.getAfterAttackCoordinates());
+            figureMap.remove(forcedAttack.getEnemy().getId());
         }
 
-        gameManger.endTurn(turnIndicator);
+        gameManger.endTurn();
     }
-
 
     public void onPawnClick(MouseEvent e){
         Node clickedNode = (Node)e.getTarget();
-        //Guard clause for multiple attacks
+        //Guard clause to prevent selecting other figures when performing chain attack
         if (isAfterAttack)
             return;
 
-        System.out.println(gameManger.isFigureClickValid(clickedNode.getId()));
-        // gard clause for invalid figure selection
+        //Guard clause to prevent selecting other figures when forced to attack
         if (!gameManger.isFigureClickValid(clickedNode.getId()) )
             return;
 
@@ -89,13 +69,10 @@ public class BoardController implements Initializable {
 
         if(selectedFigure.getFigureColor() == gameManger.getCurrentTurn()) {
             //deselect previous selection
-            figureMap.values().stream()
-                    .filter(Figure::isSelected)
-                    .forEach(Figure::deselect);
+            markAllFiguresAsNotSelected();
             // select figure
             selectedFigure.select(false);
         }
-
     }
 
     public void onMarkClicked(MouseEvent event){
@@ -103,26 +80,29 @@ public class BoardController implements Initializable {
         Node clickedNode = (Node)event.getTarget();
         Mark selectedMark = selectedFigure.getMarkByID(clickedNode.getId());
 
+        //Move logic
+        if (selectedMark.getMarkType() == MarkTypes.MOVE){
+            selectedFigure.moveFigure(selectedMark.getCoordinates());
+            gameManger.endTurn();
+            return;
+        }
+
+        //Attack logic
         if( selectedMark.getMarkType() == MarkTypes.ATTACK ){
             selectedFigure.attackFigure(selectedMark);
             figureMap.remove(selectedMark.getEnemy().getId());
             isAfterAttack = true;
             selectedFigure.select(true);
+
+            //Chain attack logic
             if(selectedFigure.getAttackMarksCount() == 0){
-                selectedFigure.deselect();
-                gameManger.endTurn(turnIndicator);
+                markAllFiguresAsNotSelected();
+                gameManger.endTurn();
                 isAfterAttack = false;
             }
-        }else if (selectedMark.getMarkType() == MarkTypes.MOVE){
-            selectedFigure.moveFigure(selectedMark.getCoordinates());
-            gameManger.endTurn(turnIndicator);
         }
 
     }
-
-
-
-
 
     public List<Figure> getFigures(){
         return  figureMap.values().stream().toList();
@@ -134,6 +114,16 @@ public class BoardController implements Initializable {
 
     public long getFiguresCountByColour(FigureColor color){
         return figureMap.values().stream().filter(figure -> figure.getFigureColor() == color).count();
+    }
+
+    public Text getTurnIndicator() {
+        return turnIndicator;
+    }
+
+    private void markAllFiguresAsNotSelected() {
+        figureMap.values().stream()
+                .filter(Figure::isSelected)
+                .forEach(Figure::deselect);
     }
 
     private void fillBoardWithPawns(){
@@ -162,18 +152,6 @@ public class BoardController implements Initializable {
         figureMap.put("bp10", new Figure(FigureTypes.PAWN,FigureColor.BLACK,2,7,board,this,"bp10"));
         figureMap.put("bp11", new Figure(FigureTypes.PAWN,FigureColor.BLACK,4,7,board,this,"bp11"));
         figureMap.put("bp12", new Figure(FigureTypes.PAWN,FigureColor.BLACK,6,7,board,this,"bp12"));
-    }
-
-    private static void wait(int ms)
-    {
-        try
-        {
-            Thread.sleep(ms);
-        }
-        catch(InterruptedException ex)
-        {
-            Thread.currentThread().interrupt();
-        }
     }
 
 }

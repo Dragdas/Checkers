@@ -1,56 +1,66 @@
 package com.kkulpa.checkers.checkers.gamemanager;
 
+import com.kkulpa.checkers.checkers.AI.AiOpponent;
 import com.kkulpa.checkers.checkers.BoardController;
+import com.kkulpa.checkers.checkers.figurecomponents.Figure;
 import com.kkulpa.checkers.checkers.figurecomponents.FigureColor;
-import com.kkulpa.checkers.checkers.figurecomponents.PossibleAttack;
 import javafx.scene.text.Text;
 
 import java.util.List;
+
+import static com.kkulpa.checkers.checkers.figurecomponents.FigureColor.*;
 
 public class GameManger {
 
     private FigureColor currentTurn;
     private BoardController boardController;
+    private Text turnIndicator;
     private boolean isGameOver=false;
     private FigureColor winner = null;
 
-    public GameManger(FigureColor currentTurn, BoardController boardController) {
-        this.currentTurn = currentTurn;
+    public GameManger(FigureColor startingColour, BoardController boardController) {
+        this.currentTurn = startingColour;
         this.boardController = boardController;
+        this.turnIndicator = boardController.getTurnIndicator();
     }
 
-    public void endTurn(Text text){
-        if(currentTurn == FigureColor.BLACK) {
-            currentTurn = FigureColor.RED;
-            text.setText("It's red's turn");
+    public void endTurn(){
+        if(currentTurn == BLACK) {
+            currentTurn = RED;
+            turnIndicator.setText("It's red's turn");
         }
         else {
-            currentTurn = FigureColor.BLACK;
-            text.setText("It's black's turn");
+            currentTurn = BLACK;
+            turnIndicator.setText("It's black's turn");
         }
         checkForVictory();
 
         //TODO some play new game or exit popup
-        if (winner != null)
-            text.setText("Player with " + winner + " pieces won! GZ");
+        if (winner != null){
+            turnIndicator.setText("PLAYER WITH " + winner + " PIECES WON! GZ");
+            return;
+        }
+
+        if( currentTurn == RED)
+            AiOpponent.executeTurn(boardController);
+
     }
 
     private void checkForVictory(){
         //no possible moves win condition
-        long numberOfPossibleAttacks = boardController.getFigures().stream()
+        long numberOfPossibleActions = boardController.getFigures().stream()
                 .filter(figure -> figure.getFigureColor() == currentTurn)
                 .mapToLong(figure -> figure.possibleAttacksCount() + figure.possibleMovesCount())
                 .sum();
 
         // no more figures win condition or out of moves win condition
-        if(boardController.getFiguresCountByColour(currentTurn) == 0 || numberOfPossibleAttacks == 0 ){
+        if(boardController.getFiguresCountByColour(currentTurn) == 0 || numberOfPossibleActions == 0 ){
             isGameOver = true;
-            winner = currentTurn == FigureColor.BLACK ? FigureColor.RED : FigureColor.BLACK;
-            System.out.println("Player in " + winner + " won! GZ");
+            winner = currentTurn == BLACK ? RED : BLACK;
         }
     }
 
-    public boolean isFigureClickValid(String id){
+    public boolean isFigureClickValid(String figureId){
         //forced attack logic
         List<String> possibleAttackersIDs = boardController.getFigures().stream()
                 .filter(figure -> figure.getFigureColor() == currentTurn)
@@ -59,19 +69,17 @@ public class GameManger {
                 .toList();
 
         if ( possibleAttackersIDs.size() > 0 ){
-            System.out.println("possible attack");
-            return possibleAttackersIDs.contains(id);
+            return possibleAttackersIDs.contains(figureId);
         }
 
         // general move logic
-        if ( id.startsWith("r") && currentTurn == FigureColor.RED)
+        if ( figureId.startsWith("r") && currentTurn == RED)
             return true;
-        if ( id.startsWith("b") && currentTurn == FigureColor.BLACK)
+        if ( figureId.startsWith("b") && currentTurn == BLACK)
             return true;
 
         return false;
     }
-
 
     public FigureColor getCurrentTurn() {
         return currentTurn;
