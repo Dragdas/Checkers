@@ -28,7 +28,7 @@ public class Coordinates {
                 '}';
     }
 
-    public static boolean isCoordinateValid(int columnIndex, int rowIndex){
+    public static boolean isCoordinateWithinTheBoard(int columnIndex, int rowIndex){
         return columnIndex >= 0 && columnIndex < 8 && rowIndex >= 0 && rowIndex < 8;
     }
 

@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.kkulpa.checkers.checkers.figurecomponents.Coordinates.isCoordinateValid;
+import static com.kkulpa.checkers.checkers.figurecomponents.Coordinates.isCoordinateWithinTheBoard;
 import static com.kkulpa.checkers.checkers.figurecomponents.FigureColor.*;
 import static com.kkulpa.checkers.checkers.figurecomponents.FigureTypes.*;
 
@@ -153,27 +153,26 @@ public class Figure {
     public boolean isSelected() {
         return isSelected;
     }
-
-    //TODO check for refactor possibilities
+    
     public List<PossibleAttack> findPossibleAttacks(){
         List<PossibleAttack> result = new ArrayList<>();
 
         //case redFigures
         if(figureColor == RED){
-            PossibleAttack leftFrontAttack = findAttack("b",-1,+1);
+            PossibleAttack leftFrontAttack = generateAttackIfPossible("b",-1,+1);
             if(leftFrontAttack != null)
                 result.add(leftFrontAttack);
 
-            PossibleAttack rightFrontAttack = findAttack("b",1,+1);
+            PossibleAttack rightFrontAttack = generateAttackIfPossible("b",1,+1);
             if(rightFrontAttack != null)
                 result.add(rightFrontAttack);
 
             if(figureType == KING){
-                PossibleAttack leftBackAttack = findAttack("b",-1,-1);
+                PossibleAttack leftBackAttack = generateAttackIfPossible("b",-1,-1);
                 if(leftBackAttack != null)
                     result.add(leftBackAttack);
 
-                PossibleAttack rightBackAttack = findAttack("b",1,-1);
+                PossibleAttack rightBackAttack = generateAttackIfPossible("b",1,-1);
                 if(rightBackAttack != null)
                     result.add(rightBackAttack);
             }
@@ -181,20 +180,20 @@ public class Figure {
 
         //case blackFigures
         if(figureColor == BLACK){
-            PossibleAttack leftFrontAttack = findAttack("r",-1,-1);
+            PossibleAttack leftFrontAttack = generateAttackIfPossible("r",-1,-1);
             if(leftFrontAttack != null)
                 result.add(leftFrontAttack);
 
-            PossibleAttack rightFrontAttack = findAttack("r",1,-1);
+            PossibleAttack rightFrontAttack = generateAttackIfPossible("r",1,-1);
             if(rightFrontAttack != null)
                 result.add(rightFrontAttack);
 
             if(figureType == KING){
-                PossibleAttack leftBackAttack = findAttack("r",-1,+1);
+                PossibleAttack leftBackAttack = generateAttackIfPossible("r",-1,+1);
                 if(leftBackAttack != null)
                     result.add(leftBackAttack);
 
-                PossibleAttack rightBackAttack = findAttack("r",1,+1);
+                PossibleAttack rightBackAttack = generateAttackIfPossible("r",1,+1);
                 if(rightBackAttack != null)
                     result.add(rightBackAttack);
             }
@@ -202,28 +201,25 @@ public class Figure {
 
         return result;
     }
+    
+    private PossibleAttack generateAttackIfPossible(String enemyColourLetter, int columnOffset, int rowOffset) {
+        Coordinates coordinatesOfEnemyCell       = new Coordinates(columnCoordinate + columnOffset,rowCoordinate + rowOffset );
+        Coordinates coordinatesOfCellBehindEnemy = new Coordinates(columnCoordinate + (columnOffset*2), rowCoordinate + (rowOffset*2));
+        //Guard clause to validate inputs
+        if(!(  isCellOccupiedByEnemy(coordinatesOfEnemyCell.getColumnIndex() , coordinatesOfEnemyCell.getRowIndex())
+            && isCellEmpty(coordinatesOfCellBehindEnemy.getColumnIndex(), coordinatesOfCellBehindEnemy.getRowIndex())
+            && isCoordinateWithinTheBoard(coordinatesOfCellBehindEnemy.getColumnIndex(), coordinatesOfCellBehindEnemy.getRowIndex()))
+        )
+        return null;
 
-    //TODO check for refactor possibilities
-    private PossibleAttack findAttack(String enemyColourLetter, int columnAxis, int rowAxis) {
-        if(        isCellOccupiedByEnemy(columnCoordinate + columnAxis , rowCoordinate + rowAxis)
-                && isCoordinateValid(columnCoordinate + (columnAxis*2), rowCoordinate + (rowAxis*2))
-                && isCellEmpty(columnCoordinate + (columnAxis*2), rowCoordinate + (rowAxis*2))
-        ){
+        List<Node> enemyNode = getNodesByRowColumnIndex(coordinatesOfEnemyCell.getColumnIndex(), coordinatesOfEnemyCell.getRowIndex(),board)
+                                .stream()
+                                .filter(node -> node.getId().startsWith(enemyColourLetter))
+                                .toList();
 
-                List<Node> enemyNode = getNodesByRowColumnIndex(columnCoordinate + columnAxis, rowCoordinate + rowAxis,board)
-                        .stream().filter(node -> node.getId().startsWith(enemyColourLetter))
-                        .toList();
+        Figure enemyFigure = boardController.getFigureFromMap( enemyNode.get(0).getId() );
 
-                if(enemyNode.size() > 1)
-                    System.out.println("To much enemy in cell " + (columnCoordinate + columnAxis) + " "+ (rowCoordinate + rowAxis) );
-
-                Figure enemyFigure = boardController.getFigureFromMap( enemyNode.get(0).getId() );
-
-                PossibleAttack attack = new PossibleAttack(this, enemyFigure, new Coordinates(columnCoordinate + (columnAxis*2), rowCoordinate + (rowAxis*2)));
-
-                return attack;
-            }
-            return null;
+        return new PossibleAttack(this, enemyFigure, coordinatesOfCellBehindEnemy);
     }
 
     public List<Coordinates> getPossibleMoves(){
@@ -260,8 +256,7 @@ public class Figure {
         }
 
         return result.stream()
-                .filter(coordinates -> coordinates.getColumnIndex() < 8 && coordinates.getColumnIndex() >= 0 )
-                .filter(coordinates -> coordinates.getRowIndex() >= 0 && coordinates.getRowIndex() < 8)
+                .filter(coordinates -> isCoordinateWithinTheBoard(coordinates.getColumnIndex(), coordinates.getRowIndex()) )
                 .collect(Collectors.toList());
     }
 
