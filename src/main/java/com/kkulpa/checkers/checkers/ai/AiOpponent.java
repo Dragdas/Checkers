@@ -1,4 +1,4 @@
-package com.kkulpa.checkers.checkers.AI;
+package com.kkulpa.checkers.checkers.ai;
 
 import com.kkulpa.checkers.checkers.BoardController;
 import com.kkulpa.checkers.checkers.figurecomponents.Figure;
@@ -25,8 +25,6 @@ public class AiOpponent {
                                     .toList().stream())
                 .toList();
 
-        //TODO mozna zrobic madrzejsze AI
-        //TODO sprobowac trigerowac ruch przez event
 
         Random rand = new Random();
         if (possibleAttacks.size() > 0) {
@@ -40,6 +38,6 @@ public class AiOpponent {
 
     public static PossibleAttack generateAttackWhenForced(Figure attackingFigure){
         Random rand = new Random();
-        return attackingFigure.findPossibleAttacks().get(rand.nextInt(attackingFigure.possibleAttacksCount()));
+        return attackingFigure.findPossibleAttacks().get(rand.nextInt(attackingFigure.getPossibleAttacksCount()));
     }
 }

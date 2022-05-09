@@ -39,16 +39,7 @@ public class Figure {
         this.board = board;
         this.id = id;
         this.boardController =boardController;
-
-        if (figureColor == RED){
-        this.figureImage = new Image("file:src/main/resources/Assets/RedPawn.png");
-        }
-        else{
-            this.figureImage = new Image("file:src/main/resources/Assets/BlackPawn.png");
-        }
-        figureImageView = new ImageView(figureImage);
-        figureImageView.setOnMouseClicked(this.boardController::onPawnClick);
-        figureImageView.setId(id);
+        figureImageView = DisplayElementsFactory.getPawnImageView(figureColor,id,boardController);
         board.add(figureImageView, this.columnCoordinate, rowCoordinate);
     }
     
@@ -58,7 +49,7 @@ public class Figure {
         markAsSelected();
 
         markPossibleAttacks(findPossibleAttacks());
-        if (!isForcedToAttack && possibleAttacksCount() == 0)
+        if (!isForcedToAttack && getPossibleAttacksCount() == 0)
             markPossibleMoves(getPossibleMoves());
     }
 
@@ -102,11 +93,11 @@ public class Figure {
         isSelected = false;
     }
 
-    public int possibleMovesCount(){
+    public int getPossibleMovesCount(){
         return getPossibleMoves().size();
     }
 
-    public int possibleAttacksCount(){
+    public int getPossibleAttacksCount(){
         return findPossibleAttacks().size();
     }
 
@@ -118,32 +109,16 @@ public class Figure {
         return figureColor;
     }
 
+    public Mark getMarkByID(String id){
+        return markMap.get(id);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Figure)) return false;
         Figure figure = (Figure) o;
         return Objects.equals(id, figure.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    public Mark getMarkByID(String id){
-        return markMap.get(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Figure{" +
-                "figureType=" + figureType +
-                ", figureColor=" + figureColor +
-                ", columntCoordinate=" + columnCoordinate +
-                ", rowCoordinate=" + rowCoordinate +
-                ", id='" + id + '\'' +
-                '}';
     }
 
     public long getAttackMarksCount(){
@@ -200,6 +175,22 @@ public class Figure {
         }
 
         return result;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Figure{" +
+                "figureType=" + figureType +
+                ", figureColor=" + figureColor +
+                ", columntCoordinate=" + columnCoordinate +
+                ", rowCoordinate=" + rowCoordinate +
+                ", id='" + id + '\'' +
+                '}';
     }
     
     private PossibleAttack generateAttackIfPossible(String enemyColourLetter, int columnOffset, int rowOffset) {
@@ -264,46 +255,34 @@ public class Figure {
 
         AtomicInteger i = new AtomicInteger(0);
 
-        attacks.stream()
-                    .forEach(possibleAttack -> {
-                    Image possibleAttackImage = new Image("file:src/main/resources/Assets/attackMove.png");
-                    ImageView imageView = new ImageView(possibleAttackImage);
-                    imageView.setOpacity(0.5);
-                    imageView.setId(this.id + " AttackMark " + i.intValue());
-                    i.incrementAndGet();
-                    imageView.setOnMouseClicked(boardController::onMarkClicked);
-                    board.add(imageView,possibleAttack.getAfterAttackCoordinates().getColumnIndex(), possibleAttack.getAfterAttackCoordinates().getRowIndex());
-                    marksImageView.add(imageView);
+        attacks.forEach(possibleAttack -> {
+                    ImageView imageView = DisplayElementsFactory.getAttackMarkImageView(id, i.getAndIncrement(), boardController);
                     Mark mark = new Mark(imageView.getId(), imageView, possibleAttack.getAfterAttackCoordinates(), MarkTypes.ATTACK, possibleAttack.getEnemy());
-                    markMap.put(mark.getId(), mark);
-                });
+                    addMarksToMarksTrackers(possibleAttack.getAfterAttackCoordinates(), imageView, mark);
+        });
             }
+
+    private void addMarksToMarksTrackers(Coordinates coordinates, ImageView imageView, Mark mark) {
+        board.add(imageView, coordinates.getColumnIndex(), coordinates.getRowIndex());
+        marksImageView.add(imageView);
+        markMap.put(mark.getId(), mark);
+    }
 
     private void markPossibleMoves(List<Coordinates>coordinates ){
 
         AtomicInteger i = new AtomicInteger(0);
 
         coordinates.forEach(coordinate -> {
-        Image possibleMovesImage = new Image("file:src/main/resources/Assets/movesThatCanBeSelected.png");
-        ImageView imageView = new ImageView(possibleMovesImage);
-        imageView.setOpacity(0.5);
-        imageView.setId(this.id + " MoveMark " + i.intValue());
-        i.incrementAndGet();
-        imageView.setOnMouseClicked(boardController::onMarkClicked);
-        board.add(imageView,coordinate.getColumnIndex(),coordinate.getRowIndex());
-        marksImageView.add(imageView);
-        Mark mark = new Mark(imageView.getId(), imageView, coordinate, MarkTypes.MOVE);
-        markMap.put(mark.getId(), mark);
+            ImageView imageView = DisplayElementsFactory.getMoveMarkImageView(id, i.getAndIncrement(), boardController);
+            Mark mark = new Mark(imageView.getId(), imageView, coordinate, MarkTypes.MOVE);
+            addMarksToMarksTrackers(coordinate, imageView, mark);
         });
 
     }
 
     private void markAsSelected() {
         board.getChildren().remove(figureImageView);
-        Image selectedPawnImage = new Image("file:src/main/resources/Assets/move.png");
-        ImageView selectedPawnImageView = new ImageView(selectedPawnImage);
-        selectedPawnImageView.setOpacity(0.5);
-        selectedPawnImageView.setId("selection Mark");
+        ImageView selectedPawnImageView = DisplayElementsFactory.getSelectMarkImageView();
         marksImageView.add(selectedPawnImageView);
         board.add(selectedPawnImageView, columnCoordinate, rowCoordinate);
         board.add(figureImageView, columnCoordinate, rowCoordinate);

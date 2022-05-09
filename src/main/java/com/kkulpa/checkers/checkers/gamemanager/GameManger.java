@@ -1,8 +1,7 @@
 package com.kkulpa.checkers.checkers.gamemanager;
 
-import com.kkulpa.checkers.checkers.AI.AiOpponent;
+import com.kkulpa.checkers.checkers.ai.AiOpponent;
 import com.kkulpa.checkers.checkers.BoardController;
-import com.kkulpa.checkers.checkers.figurecomponents.Figure;
 import com.kkulpa.checkers.checkers.figurecomponents.FigureColor;
 import javafx.scene.text.Text;
 
@@ -35,7 +34,7 @@ public class GameManger {
         }
         checkForVictory();
 
-        //TODO some play new game or exit popup
+
         if (winner != null){
             turnIndicator.setText("PLAYER WITH " + winner + " PIECES WON! GZ");
             return;
@@ -50,7 +49,7 @@ public class GameManger {
         //no possible moves win condition
         long numberOfPossibleActions = boardController.getFigures().stream()
                 .filter(figure -> figure.getFigureColor() == currentTurn)
-                .mapToLong(figure -> figure.possibleAttacksCount() + figure.possibleMovesCount())
+                .mapToLong(figure -> figure.getPossibleAttacksCount() + figure.getPossibleMovesCount())
                 .sum();
 
         // no more figures win condition or out of moves win condition

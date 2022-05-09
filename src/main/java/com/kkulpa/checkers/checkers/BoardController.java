@@ -1,6 +1,6 @@
 package com.kkulpa.checkers.checkers;
 
-import com.kkulpa.checkers.checkers.AI.AiOpponent;
+import com.kkulpa.checkers.checkers.ai.AiOpponent;
 import com.kkulpa.checkers.checkers.figurecomponents.*;
 import com.kkulpa.checkers.checkers.gamemanager.GameManger;
 import javafx.fxml.FXML;
@@ -28,8 +28,6 @@ public class BoardController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        //TODO edit board and remove this line
-        board.getChildren().removeAll(board.getChildren());
         gameManger = new GameManger(FigureColor.BLACK, this);
         fillBoardWithPawns();
 
@@ -47,7 +45,7 @@ public class BoardController implements Initializable {
         figureMap.remove(aiGeneratedAttack.getEnemy().getId());
 
         //chain attack logic
-        while ( attacker.possibleAttacksCount() > 0 ){
+        while ( attacker.getPossibleAttacksCount() > 0 ){
             PossibleAttack forcedAttack = AiOpponent.generateAttackWhenForced(attacker);
             forcedAttack.getAttacker().attackFigure(forcedAttack.getEnemy(),forcedAttack.getAfterAttackCoordinates());
             figureMap.remove(forcedAttack.getEnemy().getId());
