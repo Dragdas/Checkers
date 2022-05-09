@@ -34,7 +34,6 @@ public class GameManger {
         }
         checkForVictory();
 
-
         if (winner != null){
             turnIndicator.setText("PLAYER WITH " + winner + " PIECES WON! GZ");
             return;
