@@ -28,6 +28,7 @@ public class BoardController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        //TODO edit board and remove this line
         board.getChildren().removeAll(board.getChildren());
         gameManger = new GameManger(FigureColor.BLACK, this);
         fillBoardWithPawns();
